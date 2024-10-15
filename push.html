@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>간단한 웹뷰 예제</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 50px;
+        }
+    </style>
+</head>
+<body>
+    <h1>웹뷰 푸시 알림 예제</h1>
+    <button id="subscribeButton">푸시 알림 구독하기</button>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/service-worker.js')
+                .then(function(registration) {
+                    console.log('Service Worker registered with scope:', registration.scope);
+                })
+                .catch(function(error) {
+                    console.error('Service Worker registration failed:', error);
+                });
+        }
+
+        document.getElementById('subscribeButton').addEventListener('click', function() {
+            subscribeUserToPush();
+        });
+
+        function subscribeUserToPush() {
+            Notification.requestPermission().then(function(permission) {
+                if (permission === 'granted') {
+                    navigator.serviceWorker.ready.then(function(registration) {
+                        registration.pushManager.subscribe({
+                            userVisibleOnly: true,
+                            applicationServerKey: 'YOUR_PUBLIC_VAPID_KEY' // VAPID 키를 여기에 입력
+                        }).then(function(subscription) {
+                            console.log('User is subscribed:', subscription);
+                            // 서버에 구독 정보를 전송할 수 있습니다.
+                        }).catch(function(err) {
+                            console.log('Failed to subscribe the user: ', err);
+                        });
+                    });
+                }
+            });
+        }
+    </script>
+</body>
+</html>
